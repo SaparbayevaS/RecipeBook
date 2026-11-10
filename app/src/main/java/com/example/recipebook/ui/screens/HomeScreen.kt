@@ -1,5 +1,6 @@
 package com.example.recipebook.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,10 +37,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.recipebook.R
 import com.example.recipebook.data.SushiData
 import com.example.recipebook.model.SushiRecipe
 import com.example.recipebook.ui.components.SushiSectionTitle
@@ -107,82 +111,101 @@ fun HomeScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(innerPadding),
+            contentPadding = PaddingValues(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                placeholder = { Text("Search sushi...") },
-                singleLine = true,
-                shape = RoundedCornerShape(16.dp)
-            )
-
-            SushiSectionTitle(title = "Categories")
-
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(categories) { category ->
-                    CategoryChip(
-                        category = category,
-                        selected = selectedCategory == category,
-                        onClick = { selectedCategory = category }
-                    )
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                SushiSectionTitle(title = "Popular sushi")
-
-                Text(
-                    text = "${filteredRecipes.size} recipes",
-                    modifier = Modifier.padding(end = 16.dp),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary
+            item {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    placeholder = { Text("Search sushi...") },
+                    singleLine = true,
+                    shape = RoundedCornerShape(16.dp)
                 )
             }
 
-            if (filteredRecipes.isEmpty()) {
-                Box(
+            item {
+                Image(
+                    painter = painterResource(id = R.drawable.sushi_illustration),
+                    contentDescription = "Japanese sushi illustration with rolls and nigiri",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
+                        .padding(horizontal = 16.dp)
+                        .height(170.dp)
+                        .clip(RoundedCornerShape(20.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            item {
+                SushiSectionTitle(title = "Categories")
+            }
+
+            item {
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
-                        text = "No sushi found 🍣",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = 24.dp
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(filteredRecipes, key = { it.id }) { recipe ->
-                        SushiRecipeCard(
-                            recipe = recipe,
-                            onClick = { onRecipeClick(recipe.id) }
+                    items(categories) { category ->
+                        CategoryChip(
+                            category = category,
+                            selected = selectedCategory == category,
+                            onClick = { selectedCategory = category }
                         )
                     }
+                }
+            }
+
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    SushiSectionTitle(title = "Popular sushi")
+
+                    Text(
+                        text = "${filteredRecipes.size} recipes",
+                        modifier = Modifier.padding(end = 16.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            if (filteredRecipes.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No sushi found 🍣",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+            } else {
+                items(
+                    items = filteredRecipes,
+                    key = { it.id }
+                ) { recipe ->
+                    SushiRecipeCard(
+                        recipe = recipe,
+                        onClick = { onRecipeClick(recipe.id) },
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
                 }
             }
         }
@@ -218,10 +241,11 @@ fun CategoryChip(
 @Composable
 fun SushiRecipeCard(
     recipe: SushiRecipe,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(20.dp),
