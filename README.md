@@ -1,27 +1,60 @@
-# RecipeBook
+# 🍣 SushiBook
 
-## Project Description
+SushiBook is a mobile application built with Kotlin and Jetpack Compose. It helps users explore sushi recipes, save their favorites, and create their own recipes.
 
-RecipeBook is a mobile application that helps users save and organize their favorite recipes in one place.
+The application has a Japanese-inspired design with soft pink, white, and red colors.
 
-Many people find recipes on the internet or social media but often lose them or forget where they saved them. This app will allow users to add their own recipes, write down ingredients and cooking instructions, and easily find them later.
+## Features
 
-## Planned Features
+- **Browse Recipes** — view a collection of 10 sushi recipes.
+- **Search** — find recipes by name.
+- **Filter by Category** — browse Rolls, Maki, Nigiri, and Temaki.
+- **Recipe Details** — view descriptions, ingredients, cooking time, and instructions.
+- **Add Recipes** — create your own sushi recipes.
+- **Favorites** — save and view favorite recipes.
+- **Local Storage** — recipes and favorites remain saved after restarting the app.
+- **Dark Mode** — supports light and dark system themes.
 
-1. View Recipes – display a list of saved recipes.
-2. Add Recipes – add a recipe with its name, ingredients, and cooking instructions.
-3. View Recipe Details – see all information about a selected recipe.
-4. Edit Recipes – update existing recipes.
-5. Delete Recipes – remove recipes from the list.
-6. Search Recipes – find recipes by name.
-7. Local Data Storage – save recipes on the device.
+## Screens
+
+The application includes four main screens:
+
+1. Home Screen
+2. Recipe Details Screen
+3. Add Recipe Screen
+4. Favorites Screen
+
+## Design
+
+The initial screen designs are available in the `design/` directory.
+
+### Home Screen
+![Home Design](design/home.jpg)
+
+### Recipe Details
+![Recipe Details Design](design/recipe_details.jpg)
+
+### Add Recipe
+![Add Recipe Design](design/add_recipe.jpg)
+
+### Favorites
+![Favorites Design](design/favourites.jpg)
+
+## Application Screenshots
+
+Screenshots of the implemented application will be added here.
+
+<!-- Add screenshots of all four screens in light and dark mode. -->
 
 ## Technologies
 
 - Kotlin
 - Android Studio
 - Jetpack Compose
-- Android SDK
+- Material 3
+- Navigation Compose
+- SharedPreferences
+- JSON
 
 ## Project Structure
 
@@ -29,21 +62,49 @@ Many people find recipes on the internet or social media but often lose them or 
 RecipeBook/
 ├── app/
 │   └── src/
-│       ├── main/
-│       │   ├── java/com/example/recipebook/
-│       │   │   ├── MainActivity.kt
-│       │   │   └── ui/theme/
-│       │   │       ├── Color.kt
-│       │   │       ├── Theme.kt
-│       │   │       └── Type.kt
-│       │   ├── res/
-│       │   ├── AndroidManifest.xml
-│       │   └── keepRules/
-│       ├── androidTest/
-│       └── test/
-├── gradle/
-├── build.gradle.kts
-├── settings.gradle.kts
-├── gradle.properties
-├── gradlew
-└── README.md
+│       └── main/
+│           ├── java/com/example/recipebook/
+│           │   ├── data/
+│           │   │   ├── SushiData.kt
+│           │   │   └── RecipeStorage.kt
+│           │   ├── model/
+│           │   │   └── SushiRecipe.kt
+│           │   ├── navigation/
+│           │   │   └── AppNavigation.kt
+│           │   ├── ui/
+│           │   │   ├── components/
+│           │   │   ├── screens/
+│           │   │   └── theme/
+│           │   └── MainActivity.kt
+│           └── res/
+├── design/
+├── README.md
+└── AI_USAGE.md
+```
+
+## How to Run
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/SaparbayevaS/RecipeBook.git
+   ```
+
+2. Open the project in Android Studio.
+
+3. Wait for Gradle Sync to finish.
+
+4. Start an Android emulator or connect an Android device.
+
+5. Run the application.
+
+## Minimum Requirements
+
+- Android 7.0 (API 24) or higher.
+- Android Studio with Kotlin and Jetpack Compose support.
+
+## Author
+
+Created as a student project for the SIS course.
+
+GitHub: https://github.com/SaparbayevaS
