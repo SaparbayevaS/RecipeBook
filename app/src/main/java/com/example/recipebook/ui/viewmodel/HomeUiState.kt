@@ -1,6 +1,6 @@
 package com.example.recipebook.ui.viewmodel
 
-import com.example.recipebook.model.SushiRecipe
+import com.example.recipebook.domain.model.SushiRecipe
 
 data class HomeUiState(
     val allRecipes: List<SushiRecipe> = emptyList(),

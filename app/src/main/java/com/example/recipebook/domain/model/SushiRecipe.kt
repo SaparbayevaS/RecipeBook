@@ -1,4 +1,4 @@
-package com.example.recipebook.model
+package com.example.recipebook.domain.model
 
 data class SushiRecipe(
     val id: Int,
@@ -8,5 +8,6 @@ data class SushiRecipe(
     val description: String,
     val ingredients: List<String>,
     val instructions: List<String>,
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    val imageUrl: String? = null
 )

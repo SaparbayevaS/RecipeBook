@@ -1,6 +1,12 @@
 package com.example.recipebook.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.RoundedCornerShape
+import coil.compose.AsyncImage
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,7 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.recipebook.data.SushiData
-import com.example.recipebook.model.SushiRecipe
+import com.example.recipebook.domain.model.SushiRecipe
 import com.example.recipebook.ui.theme.RecipeBookTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,25 +81,29 @@ fun RecipeDetailsScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(180.dp)
+                    .height(220.dp)
             ) {
-                Column(
+                Box(
                     modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "🍣",
-                        style = MaterialTheme.typography.displayLarge
-                    )
-                    Text(
-                        text = recipe.category,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    if (recipe.imageUrl != null) {
+                        AsyncImage(
+                            model = recipe.imageUrl,
+                            contentDescription = recipe.name,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(RoundedCornerShape(12.dp)),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Text(
+                            text = "🍣",
+                            style = MaterialTheme.typography.displayLarge
+                        )
+                    }
                 }
             }
-
             Text(
                 text = recipe.name,
                 style = MaterialTheme.typography.headlineMedium,

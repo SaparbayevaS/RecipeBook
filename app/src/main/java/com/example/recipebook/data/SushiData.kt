@@ -1,6 +1,6 @@
 package com.example.recipebook.data
 
-import com.example.recipebook.model.SushiRecipe
+import com.example.recipebook.domain.model.SushiRecipe
 
 object SushiData {
 

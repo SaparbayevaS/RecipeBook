@@ -4,8 +4,9 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.recipebook.data.repository.SushiRepository
-import com.example.recipebook.model.SushiRecipe
+import com.example.recipebook.data.repository.SushiRepositoryImpl
+import com.example.recipebook.domain.model.SushiRecipe
+import java.io.IOException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +15,7 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = SushiRepository(application)
+    private val repository = SushiRepositoryImpl(application)
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -34,7 +35,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             try {
-                val recipes = repository.getRecipes(simulateError)
+                if (simulateError) {
+                    throw IOException("Test error")
+                }
+
+                val recipes = repository.getRecipes()
 
                 _uiState.update {
                     it.copy(
@@ -55,7 +60,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        error = "Something went wrong. Please try again.",
+                        error = "Something went wrong. Please check your internet connection and try again.",
                         isEmpty = false
                     )
                 }
@@ -73,7 +78,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
                 val matchesCategory =
                     currentState.selectedCategory == "All" ||
-                            recipe.category == currentState.selectedCategory
+                        recipe.category == currentState.selectedCategory
 
                 matchesSearch && matchesCategory
             }
@@ -141,7 +146,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         )
 
         val updatedRecipes = currentRecipes + newRecipe
-
         repository.saveRecipes(updatedRecipes)
 
         _uiState.update {

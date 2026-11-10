@@ -1,6 +1,7 @@
 package com.example.recipebook.ui.screens
 
 import androidx.compose.foundation.Image
+import coil.compose.AsyncImage
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -43,7 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.recipebook.R
 import com.example.recipebook.data.SushiData
-import com.example.recipebook.model.SushiRecipe
+import com.example.recipebook.domain.model.SushiRecipe
 import com.example.recipebook.ui.components.SushiSectionTitle
 import com.example.recipebook.ui.theme.RecipeBookTheme
 import com.example.recipebook.ui.viewmodel.HomeUiState
@@ -61,7 +62,7 @@ fun HomeScreen(
     onFavoritesClick: () -> Unit,
     onAddRecipeClick: () -> Unit
 ) {
-    val categories = listOf("All", "Rolls", "Maki", "Nigiri", "Temaki")
+    val categories = listOf("All", "Chicken", "Seafood", "Side", "Pork", "Vegetarian")
 
     Scaffold(
         topBar = {
@@ -302,19 +303,29 @@ fun SushiRecipeCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(76.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.secondary),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "🍣",
-                    style = MaterialTheme.typography.headlineLarge
+            if (recipe.imageUrl != null) {
+                AsyncImage(
+                    model = recipe.imageUrl,
+                    contentDescription = recipe.name,
+                    modifier = Modifier
+                        .size(76.dp)
+                        .clip(RoundedCornerShape(16.dp)),
+                    contentScale = ContentScale.Crop
                 )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(76.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.secondary),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "🍣",
+                        style = MaterialTheme.typography.headlineLarge
+                    )
+                }
             }
-
             Spacer(modifier = Modifier.size(14.dp))
 
             Column(modifier = Modifier.weight(1f)) {

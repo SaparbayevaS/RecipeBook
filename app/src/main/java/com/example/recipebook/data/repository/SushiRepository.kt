@@ -2,7 +2,7 @@ package com.example.recipebook.data.repository
 
 import android.content.Context
 import com.example.recipebook.data.RecipeStorage
-import com.example.recipebook.model.SushiRecipe
+import com.example.recipebook.domain.model.SushiRecipe
 import kotlinx.coroutines.delay
 import java.io.IOException
 

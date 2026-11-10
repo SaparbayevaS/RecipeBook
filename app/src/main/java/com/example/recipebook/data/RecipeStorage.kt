@@ -1,9 +1,9 @@
 package com.example.recipebook.data
 
 import android.content.Context
+import com.example.recipebook.domain.model.SushiRecipe
 import org.json.JSONArray
 import org.json.JSONObject
-import com.example.recipebook.model.SushiRecipe
 
 object RecipeStorage {
 
@@ -23,6 +23,7 @@ object RecipeStorage {
                 put("ingredients", JSONArray(recipe.ingredients))
                 put("instructions", JSONArray(recipe.instructions))
                 put("isFavorite", recipe.isFavorite)
+                put("imageUrl", recipe.imageUrl)
             }
 
             jsonArray.put(jsonObject)
@@ -63,7 +64,9 @@ object RecipeStorage {
                     instructions = jsonObject
                         .getJSONArray("instructions")
                         .toStringList(),
-                    isFavorite = jsonObject.getBoolean("isFavorite")
+                    isFavorite = jsonObject.getBoolean("isFavorite"),
+                    imageUrl = jsonObject.optString("imageUrl")
+                        .takeIf { it.isNotBlank() && it != "null" }
                 )
             }
         } catch (exception: Exception) {
