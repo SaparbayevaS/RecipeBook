@@ -7,11 +7,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,12 +24,10 @@ import com.example.recipebook.ui.theme.RecipeBookTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoritesScreen(
-    recipes: List<SushiRecipe>,
+    favoriteRecipes: List<SushiRecipe>,
     onBackClick: () -> Unit = {},
     onRecipeClick: (Int) -> Unit = {}
 ) {
-    val favoriteRecipes = recipes.filter { it.isFavorite }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -93,8 +91,8 @@ fun FavoritesScreen(
 fun FavoritesScreenPreview() {
     RecipeBookTheme {
         FavoritesScreen(
-            recipes = SushiData.recipes.mapIndexed { index, recipe ->
-                if (index == 0) recipe.copy(isFavorite = true) else recipe
+            favoriteRecipes = SushiData.recipes.take(1).map {
+                it.copy(isFavorite = true)
             }
         )
     }
@@ -105,8 +103,8 @@ fun FavoritesScreenPreview() {
 fun FavoritesScreenDarkPreview() {
     RecipeBookTheme(darkTheme = true) {
         FavoritesScreen(
-            recipes = SushiData.recipes.mapIndexed { index, recipe ->
-                if (index == 0) recipe.copy(isFavorite = true) else recipe
+            favoriteRecipes = SushiData.recipes.take(1).map {
+                it.copy(isFavorite = true)
             }
         )
     }

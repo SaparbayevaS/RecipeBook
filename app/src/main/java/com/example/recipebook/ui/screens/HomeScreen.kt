@@ -19,8 +19,10 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,10 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,26 +46,22 @@ import com.example.recipebook.data.SushiData
 import com.example.recipebook.model.SushiRecipe
 import com.example.recipebook.ui.components.SushiSectionTitle
 import com.example.recipebook.ui.theme.RecipeBookTheme
+import com.example.recipebook.ui.viewmodel.HomeUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    recipes: List<SushiRecipe> = SushiData.recipes,
-    onRecipeClick: (Int) -> Unit = {},
-    onFavoritesClick: () -> Unit = {},
-    onAddRecipeClick: () -> Unit = {}
+    uiState: HomeUiState,
+    onSearchChange: (String) -> Unit,
+    onCategorySelected: (String) -> Unit,
+    onFavouriteClick: (Int) -> Unit,
+    onRetry: () -> Unit,
+    onTestError: () -> Unit,
+    onRecipeClick: (Int) -> Unit,
+    onFavoritesClick: () -> Unit,
+    onAddRecipeClick: () -> Unit
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf("All") }
-
     val categories = listOf("All", "Rolls", "Maki", "Nigiri", "Temaki")
-
-    val filteredRecipes = recipes.filter { recipe ->
-        val matchesSearch = recipe.name.contains(searchQuery, ignoreCase = true)
-        val matchesCategory = selectedCategory == "All" ||
-            recipe.category == selectedCategory
-        matchesSearch && matchesCategory
-    }
 
     Scaffold(
         topBar = {
@@ -95,7 +89,6 @@ fun HomeScreen(
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
-
                     IconButton(onClick = onAddRecipeClick) {
                         Text(
                             text = "+",
@@ -120,8 +113,8 @@ fun HomeScreen(
         ) {
             item {
                 OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
+                    value = uiState.searchQuery,
+                    onValueChange = onSearchChange,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
@@ -133,8 +126,11 @@ fun HomeScreen(
 
             item {
                 Image(
-                    painter = painterResource(id = R.drawable.sushi_illustration),
-                    contentDescription = "Japanese sushi illustration with rolls and nigiri",
+                    painter = painterResource(
+                        id = R.drawable.sushi_illustration
+                    ),
+                    contentDescription =
+                        "Japanese sushi illustration with rolls and nigiri",
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
@@ -156,11 +152,24 @@ fun HomeScreen(
                     items(categories) { category ->
                         CategoryChip(
                             category = category,
-                            selected = selectedCategory == category,
-                            onClick = { selectedCategory = category }
+                            selected = uiState.selectedCategory == category,
+                            onClick = {
+                                onCategorySelected(category)
+                            }
                         )
                     }
                 }
+            }
+
+            item {
+                Text(
+                    text = "Test Error",
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .clickable(onClick = onTestError),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.labelMedium
+                )
             }
 
             item {
@@ -172,9 +181,8 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     SushiSectionTitle(title = "Popular sushi")
-
                     Text(
-                        text = "${filteredRecipes.size} recipes",
+                        text = "${uiState.recipes.size} recipes",
                         modifier = Modifier.padding(end = 16.dp),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary
@@ -182,7 +190,37 @@ fun HomeScreen(
                 }
             }
 
-            if (filteredRecipes.isEmpty()) {
+            if (uiState.isLoading) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+            } else if (uiState.error != null) {
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = uiState.error,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Button(onClick = onRetry) {
+                            Text("Try again")
+                        }
+                    }
+                }
+            } else if (uiState.isEmpty) {
                 item {
                     Box(
                         modifier = Modifier
@@ -198,12 +236,15 @@ fun HomeScreen(
                 }
             } else {
                 items(
-                    items = filteredRecipes,
+                    items = uiState.recipes,
                     key = { it.id }
                 ) { recipe ->
                     SushiRecipeCard(
                         recipe = recipe,
                         onClick = { onRecipeClick(recipe.id) },
+                        onFavouriteClick = {
+                            onFavouriteClick(recipe.id)
+                        },
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
@@ -242,6 +283,7 @@ fun CategoryChip(
 fun SushiRecipeCard(
     recipe: SushiRecipe,
     onClick: () -> Unit,
+    onFavouriteClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -312,23 +354,96 @@ fun SushiRecipeCard(
                     )
                 }
             }
+
+            IconButton(onClick = onFavouriteClick) {
+                Text(
+                    text = if (recipe.isFavorite) "♥" else "♡",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            }
         }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Loading State")
 @Composable
-fun HomeScreenPreview() {
+fun HomeLoadingPreview() {
     RecipeBookTheme {
-        HomeScreen()
+        HomeScreen(
+            uiState = HomeUiState(isLoading = true),
+            onSearchChange = {},
+            onCategorySelected = {},
+            onFavouriteClick = {},
+            onRetry = {},
+            onTestError = {},
+            onRecipeClick = {},
+            onFavoritesClick = {},
+            onAddRecipeClick = {}
+        )
     }
 }
 
-@Preview(showBackground = true, name = "Home Dark Mode")
+@Preview(showBackground = true, name = "Content State")
 @Composable
-fun HomeScreenDarkPreview() {
-    RecipeBookTheme(darkTheme = true) {
-        HomeScreen()
+fun HomeContentPreview() {
+    RecipeBookTheme {
+        HomeScreen(
+            uiState = HomeUiState(
+                recipes = SushiData.recipes,
+                isLoading = false
+            ),
+            onSearchChange = {},
+            onCategorySelected = {},
+            onFavouriteClick = {},
+            onRetry = {},
+            onTestError = {},
+            onRecipeClick = {},
+            onFavoritesClick = {},
+            onAddRecipeClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Empty State")
+@Composable
+fun HomeEmptyPreview() {
+    RecipeBookTheme {
+        HomeScreen(
+            uiState = HomeUiState(
+                isLoading = false,
+                isEmpty = true
+            ),
+            onSearchChange = {},
+            onCategorySelected = {},
+            onFavouriteClick = {},
+            onRetry = {},
+            onTestError = {},
+            onRecipeClick = {},
+            onFavoritesClick = {},
+            onAddRecipeClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Error State")
+@Composable
+fun HomeErrorPreview() {
+    RecipeBookTheme {
+        HomeScreen(
+            uiState = HomeUiState(
+                isLoading = false,
+                error = "Something went wrong. Please try again."
+            ),
+            onSearchChange = {},
+            onCategorySelected = {},
+            onFavouriteClick = {},
+            onRetry = {},
+            onTestError = {},
+            onRecipeClick = {},
+            onFavoritesClick = {},
+            onAddRecipeClick = {}
+        )
     }
 }
 

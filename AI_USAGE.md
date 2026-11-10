@@ -3,22 +3,28 @@
 ## 1. AI Tools Used
 
 ### ChatGPT
-ChatGPT was used as a learning and development assistant during the project.
+
+ChatGPT was used as a learning and development assistant during SIS3 and SIS4.
 
 It helped with:
-- Understanding the SIS3 requirements.
-- Setting up the project structure.
+
+- Understanding assignment requirements.
+- Setting up the Android project structure.
 - Writing and explaining Kotlin and Jetpack Compose code.
 - Implementing navigation between screens.
 - Creating reusable Composable functions.
 - Implementing local data storage.
-- Debugging compilation issues.
-- Reviewing the project documentation.
+- Refactoring the application using MVVM architecture.
+- Understanding Repository, ViewModel, StateFlow, and coroutines.
+- Debugging compilation and runtime issues.
+- Reviewing project documentation.
 
 ### Claude
+
 Claude was used to help create the initial visual design concepts for the application.
 
 It helped generate design ideas for:
+
 - Home Screen
 - Recipe Details Screen
 - Add Recipe Screen
@@ -28,7 +34,7 @@ The generated designs were saved in the `design/` directory.
 
 ## 2. Useful Prompts
 
-The following are examples of prompts used during development:
+Examples of prompts used during development:
 
 **Prompt 1 — UI Design**
 
@@ -42,34 +48,47 @@ The following are examples of prompts used during development:
 
 "Help me save custom recipes and favorite status locally on Android so that the data remains available after the application is restarted."
 
+**Prompt 4 — MVVM Architecture**
+
+"Help me refactor my existing Jetpack Compose application using MVVM architecture. Add a Repository, ViewModel, immutable UiState, StateFlow, loading and error states."
+
 ## 3. AI Error and How It Was Fixed
 
-During development, the initial project README listed Edit Recipes and Delete Recipes as planned features.
+During SIS3 development, the initial project README listed Edit Recipes and Delete Recipes as planned features. However, these features were not implemented in the application.
 
-However, these features were not implemented in the current application.
+This inconsistency was identified during the documentation review. The README was updated to describe only the implemented features.
 
-This inconsistency was identified during the final documentation review. The README was updated to describe only the features that are actually implemented.
+During SIS4 development, an important architectural improvement was made.
 
-The application was also tested after code changes to check that navigation, adding recipes, favorites, and local storage worked correctly.
+One possible incorrect approach was to put recipe search and category filtering logic directly inside a Composable screen.
+
+This would mix UI responsibilities with business logic.
+
+The logic was moved to `HomeViewModel`. The ViewModel now handles search, category filtering, and favorite updates. The `HomeScreen` receives an immutable `HomeUiState` and callback functions.
+
+This makes the UI more independent and follows the MVVM architecture.
 
 ## 4. Work Completed Manually
 
-The project was developed and checked in Android Studio.
-
 The student:
+
 - Created and managed the Android project.
 - Ran Gradle builds and checked compilation results.
 - Tested the application in the Android emulator.
 - Checked navigation between screens.
 - Tested adding recipes and saving favorites.
-- Checked data persistence after restarting the application.
+- Checked local data persistence.
 - Checked light and dark themes.
+- Tested the loading and error states.
+- Tested the retry action after a simulated repository error.
 - Managed project files and Git commits.
 
 AI-generated suggestions and code were reviewed and tested during development.
 
 ## 5. Reflection
 
-AI tools helped speed up development and explain unfamiliar parts of Jetpack Compose.
+AI tools helped speed up development and explain unfamiliar parts of Kotlin, Jetpack Compose, and MVVM architecture.
 
-However, generated code needed to be reviewed, integrated, and tested. The final application was checked in Android Studio to make sure the implemented features worked as expected.
+However, generated code needed to be reviewed, integrated, and tested.
+
+The final application was tested in Android Studio to check that its features and architecture worked as expected.

@@ -1,35 +1,26 @@
 package com.example.recipebook.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.recipebook.data.RecipeStorage
-import com.example.recipebook.model.SushiRecipe
 import com.example.recipebook.ui.screens.AddRecipeScreen
 import com.example.recipebook.ui.screens.FavoritesScreen
 import com.example.recipebook.ui.screens.HomeScreen
 import com.example.recipebook.ui.screens.RecipeDetailsScreen
+import com.example.recipebook.ui.viewmodel.HomeViewModel
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val context = LocalContext.current
 
-    val recipes = remember {
-        mutableStateListOf<SushiRecipe>().apply {
-            addAll(RecipeStorage.load(context))
-        }
-    }
-
-    fun saveRecipes() {
-        RecipeStorage.save(context, recipes)
-    }
+    val homeViewModel: HomeViewModel = viewModel()
+    val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
 
     NavHost(
         navController = navController,
@@ -37,7 +28,12 @@ fun AppNavigation() {
     ) {
         composable("home") {
             HomeScreen(
-                recipes = recipes,
+                uiState = uiState,
+                onSearchChange = homeViewModel::onSearchChange,
+                onCategorySelected = homeViewModel::onCategorySelected,
+                onFavouriteClick = homeViewModel::onFavouriteClick,
+                onRetry = homeViewModel::onRetry,
+                onTestError = homeViewModel::simulateError,
                 onRecipeClick = { recipeId ->
                     navController.navigate("details/$recipeId")
                 },
@@ -59,7 +55,9 @@ fun AppNavigation() {
             )
         ) { backStackEntry ->
             val recipeId = backStackEntry.arguments?.getInt("recipeId")
-            val recipe = recipes.find { it.id == recipeId }
+            val recipe = recipeId?.let {
+                homeViewModel.getRecipe(it)
+            }
 
             if (recipe != null) {
                 RecipeDetailsScreen(
@@ -68,16 +66,7 @@ fun AppNavigation() {
                         navController.popBackStack()
                     },
                     onFavoriteClick = {
-                        val index = recipes.indexOfFirst {
-                            it.id == recipe.id
-                        }
-
-                        if (index != -1) {
-                            recipes[index] = recipes[index].copy(
-                                isFavorite = !recipes[index].isFavorite
-                            )
-                            saveRecipes()
-                        }
+                        homeViewModel.onFavouriteClick(recipe.id)
                     }
                 )
             }
@@ -90,9 +79,7 @@ fun AppNavigation() {
                 },
                 onSaveClick = { name, category, time, description,
                                 ingredients, instructions ->
-
-                    val newRecipe = SushiRecipe(
-                        id = (recipes.maxOfOrNull { it.id } ?: 0) + 1,
+                    homeViewModel.addRecipe(
                         name = name,
                         category = category,
                         cookingTime = time,
@@ -100,9 +87,6 @@ fun AppNavigation() {
                         ingredients = ingredients,
                         instructions = instructions
                     )
-
-                    recipes.add(newRecipe)
-                    saveRecipes()
                     navController.popBackStack()
                 }
             )
@@ -110,7 +94,7 @@ fun AppNavigation() {
 
         composable("favorites") {
             FavoritesScreen(
-                recipes = recipes,
+                favoriteRecipes = uiState.favoriteRecipes,
                 onBackClick = {
                     navController.popBackStack()
                 },
